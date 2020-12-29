@@ -1,0 +1,21 @@
+FROM net.ofnir/openresty-fennel-rest-api-dev AS build
+
+WORKDIR /app
+COPY src/helloworld.fnl .
+RUN fennel --compile helloworld.fnl > helloworld.lua
+
+FROM openresty/openresty:alpine
+RUN apk add --virtual .build-dependencies \
+            curl \
+	    perl \
+	    luarocks5.1 \
+    && \
+    opm get ledgetech/lua-resty-http \
+            bungle/lua-resty-validation \
+    && \
+    luarocks-5.1 install fun-alloyed \
+    && \
+    apk del .build-dependencies  
+
+COPY --from=build /app/helloworld.lua /usr/local/openresty/site/lualib/
+COPY prod /etc/nginx/conf.d

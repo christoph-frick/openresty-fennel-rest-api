@@ -1,0 +1,10 @@
+# dev and build
+
+FROM openresty/openresty:alpine-fat
+
+RUN opm get ledgetech/lua-resty-http \
+            bungle/lua-resty-validation \
+    && \
+    luarocks install fun-alloyed \
+    && \
+    luarocks install fennel \
